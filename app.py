@@ -378,8 +378,8 @@ with tab1:
                     vdir = os.path.join(os.path.dirname(__file__), "verilog")
                     result = subprocess.run(
                         ["iverilog", "-o", "/tmp/cic_sim",
-                         os.path.join(vdir, "cic_filter.v"),
-                         os.path.join(vdir, "cic_testbench.v")],
+                    os.path.join(os.path.dirname(__file__), "cic_filter.v"),
+                    os.path.join(os.path.dirname(__file__), "cic_testbench.v")],
                         capture_output=True, text=True, timeout=15
                     )
                     if result.returncode == 0:
@@ -525,12 +525,12 @@ with tab4:
 
     with col_a:
         st.markdown('<div class="section-header">cic_filter.v</div>', unsafe_allow_html=True)
-        with open(os.path.join(os.path.dirname(__file__), "verilog", "cic_filter.v"), "r") as f:
+         with open(os.path.join(os.path.dirname(__file__), "cic_filter.v"), "r") as f:
             code = f.read()
         st.code(code, language="verilog")
 
     with col_b:
         st.markdown('<div class="section-header">cic_testbench.v</div>', unsafe_allow_html=True)
-        with open(os.path.join(os.path.dirname(__file__), "verilog", "cic_testbench.v"), "r") as f:
+        with open(os.path.join(os.path.dirname(__file__), "cic_testbench.v"), "r") as f:
             tb = f.read()
         st.code(tb, language="verilog")
