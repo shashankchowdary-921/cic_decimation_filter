@@ -1066,8 +1066,7 @@ with tab_stages:
                     mode="lines",
                     line=dict(color=col, width=1.2),
                     fill='tozeroy',
-                    fillcolor=f"rgba({int(col[1:3],16) if col.startswith('#') else 59},"
-                              f"0,0,0.05)"
+                    fillcolor="rgba(59,158,255,0.05)"
                 ))
                 fig_s.update_layout(
                     title=lbl,
@@ -1080,7 +1079,7 @@ with tab_stages:
                     yaxis=dict(gridcolor="#0d2040", range=[-1.1, 1.1]),
                     showlegend=False,
                 )
-                fig_s.update_traces(line_color=col, fillcolor=col.replace("rgb","rgba").replace(")",",0.06)") if col.startswith("rgb") else "rgba(59,158,255,0.06)")
+                fig_s.update_traces(line_color=col)
                 st.plotly_chart(fig_s, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════
@@ -1117,19 +1116,20 @@ with tab_metrics:
         pipeline_scores= [5, 5, 2, 2, 4]
         folded_scores  = [3, 3, 5, 5, 3]
 
+        RADAR_CONFIGS = [
+            (basic_scores,    "Basic",     C_BLUE,   "rgba(59,158,255,0.15)"),
+            (pipeline_scores, "Pipelined", C_GREEN,  "rgba(34,197,94,0.15)"),
+            (folded_scores,   "Folded",    C_PURPLE, "rgba(168,85,247,0.15)"),
+        ]
         fig_radar = go.Figure()
-        for scores, name, color in [
-            (basic_scores,    "Basic",     C_BLUE),
-            (pipeline_scores, "Pipelined", C_GREEN),
-            (folded_scores,   "Folded",    C_PURPLE),
-        ]:
+        for scores, name, color, fill in RADAR_CONFIGS:
             fig_radar.add_trace(go.Scatterpolar(
                 r=scores + [scores[0]],
                 theta=categories + [categories[0]],
                 fill='toself',
                 name=name,
                 line=dict(color=color, width=2),
-                fillcolor=color.replace("C_","rgba(").replace("#","rgba(")
+                fillcolor=fill,
             ))
         apply_dark(fig_radar, height=360)
         fig_radar.update_layout(
