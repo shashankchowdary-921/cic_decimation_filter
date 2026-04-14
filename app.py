@@ -1,5 +1,5 @@
 # ============================================================
-# CIC DECIMATION FILTER — Interactive Simulator v2.0
+# CIC DECIMATION FILTER — Interactive Simulator v3.0
 # Team Mavericks | 5G/6G RF Front-End Project
 # Dependencies: streamlit, numpy, plotly
 # ============================================================
@@ -21,344 +21,328 @@ st.set_page_config(
 )
 
 # ──────────────────────────────────────────────────────────────
-# GLOBAL STYLES — Cyber/RF Dark Theme
-# FONTS CHANGED: Rajdhani → Inter  |  JetBrains Mono → Fira Code
+# GLOBAL STYLES — Clean Modern Dark Theme
 # ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Fira+Code:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap');
 
   /* ── Root & Body ── */
   html, body, [data-testid="stApp"] {
-    background: #020817;
-    color: #c9d8f0;
-    font-family: 'Inter', sans-serif;
+    background: #070d1a;
+    color: #cbd5e1;
+    font-family: 'Space Grotesk', sans-serif;
   }
   .block-container { padding-top: 0.5rem; padding-bottom: 1rem; }
 
   /* ── Sidebar ── */
   [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #050e1f 0%, #0a1628 100%);
-    border-right: 1px solid #0d3060;
+    background: linear-gradient(180deg, #0b1323 0%, #0e1729 100%);
+    border-right: 1px solid #1e3a5f;
   }
   [data-testid="stSidebar"] .stMarkdown h2,
   [data-testid="stSidebar"] .stMarkdown h3 {
-    font-family: 'Orbitron', monospace;
-    color: #3b9eff;
-    font-size: 13px;
+    font-family: 'Syne', sans-serif;
+    color: #60a5fa;
+    font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
-  }
-
-  /* ── Sidebar title ── */
-  [data-testid="stSidebar"] .stTitle {
-    font-family: 'Orbitron', monospace !important;
   }
 
   /* ── Tabs ── */
   .stTabs [data-baseweb="tab-list"] {
-    background: #050e1f;
-    border-bottom: 2px solid #0d3060;
-    gap: 2px;
+    background: #0b1323;
+    border-bottom: 1px solid #1e3a5f;
+    gap: 1px;
   }
   .stTabs [data-baseweb="tab"] {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 1.5px;
-    color: #4a7aaa;
+    letter-spacing: 0.8px;
+    color: #475569;
     border-radius: 6px 6px 0 0;
-    padding: 8px 16px;
+    padding: 9px 18px;
     border: 1px solid transparent;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    text-transform: uppercase;
   }
   .stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, #0d3060, #0a1e40) !important;
-    color: #3b9eff !important;
-    border-color: #1a5499 !important;
-    box-shadow: 0 0 12px rgba(59,158,255,0.3);
+    background: linear-gradient(180deg, #1e3a5f 0%, #0e1729 100%) !important;
+    color: #60a5fa !important;
+    border-color: #2d5a9e !important;
+    border-bottom-color: transparent !important;
+    box-shadow: 0 -2px 12px rgba(96,165,250,0.15);
   }
   .stTabs [data-baseweb="tab-panel"] {
-    background: #020817;
-    padding-top: 1rem;
+    background: #070d1a;
+    padding-top: 1.2rem;
   }
 
   /* ── Metric Cards ── */
   div[data-testid="metric-container"] {
-    background: linear-gradient(135deg, #0a1628 0%, #050e1f 100%);
-    border: 1px solid #0d3060;
-    border-radius: 8px;
-    padding: 10px 14px;
-    box-shadow: 0 0 15px rgba(0,80,180,0.1), inset 0 0 20px rgba(0,0,0,0.3);
-    font-family: 'Fira Code', monospace;
+    background: linear-gradient(135deg, #0e1729 0%, #0b1323 100%);
+    border: 1px solid #1e3a5f;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(96,165,250,0.05);
+    font-family: 'JetBrains Mono', monospace;
+    transition: box-shadow 0.2s;
+  }
+  div[data-testid="metric-container"]:hover {
+    box-shadow: 0 4px 24px rgba(96,165,250,0.12);
   }
   div[data-testid="metric-container"] label {
-    color: #3b9eff !important;
-    font-family: 'Orbitron', monospace !important;
-    font-size: 9px !important;
-    letter-spacing: 2px !important;
+    color: #60a5fa !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
   }
   div[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    font-family: 'Fira Code', monospace !important;
-    color: #a8d4ff !important;
-    font-size: 1.2rem !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    color: #e2e8f0 !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
   }
 
   /* ── Buttons ── */
   .stButton > button {
-    background: linear-gradient(135deg, #0d3060, #1a5499);
-    border: 1px solid #3b9eff;
-    color: #3b9eff;
-    font-family: 'Orbitron', monospace;
+    background: linear-gradient(135deg, #1e3a5f, #2d5a9e);
+    border: 1px solid #3b82f6;
+    color: #93c5fd;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
-    letter-spacing: 1.5px;
-    border-radius: 6px;
-    padding: 8px 20px;
-    box-shadow: 0 0 15px rgba(59,158,255,0.2);
-    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 8px;
+    padding: 9px 22px;
+    box-shadow: 0 2px 12px rgba(59,130,246,0.2);
+    transition: all 0.25s ease;
   }
   .stButton > button:hover {
-    background: linear-gradient(135deg, #1a5499, #2470cc);
-    box-shadow: 0 0 25px rgba(59,158,255,0.4);
+    background: linear-gradient(135deg, #2d5a9e, #3b82f6);
+    box-shadow: 0 4px 20px rgba(59,130,246,0.35);
     color: #ffffff;
   }
   .stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #00b4d8, #0077b6);
-    border-color: #00b4d8;
+    background: linear-gradient(135deg, #0891b2, #0e7490);
+    border-color: #22d3ee;
     color: white;
-    box-shadow: 0 0 20px rgba(0,180,216,0.4);
+    box-shadow: 0 2px 16px rgba(34,211,238,0.3);
+  }
+  .stButton > button[kind="primary"]:hover {
+    box-shadow: 0 4px 24px rgba(34,211,238,0.45);
   }
 
-  /* ── Info / Warning boxes ── */
+  /* ── Info boxes ── */
   .stInfo, .stAlert {
-    background: linear-gradient(135deg, #050e1f, #0a1628);
-    border-left: 3px solid #3b9eff;
+    background: linear-gradient(135deg, #0b1323, #0e1729);
+    border-left: 3px solid #3b82f6;
     border-radius: 0 8px 8px 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   /* ── Expander ── */
   .streamlit-expanderHeader {
-    background: #0a1628 !important;
-    border: 1px solid #0d3060 !important;
-    border-radius: 6px !important;
-    font-family: 'Orbitron', monospace !important;
+    background: #0e1729 !important;
+    border: 1px solid #1e3a5f !important;
+    border-radius: 8px !important;
+    font-family: 'Space Grotesk', sans-serif !important;
     font-size: 11px !important;
-    color: #3b9eff !important;
-    letter-spacing: 1px;
+    font-weight: 600 !important;
+    color: #60a5fa !important;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
   }
   .streamlit-expanderContent {
-    background: #050e1f !important;
-    border: 1px solid #0d3060 !important;
+    background: #0b1323 !important;
+    border: 1px solid #1e3a5f !important;
     border-top: none !important;
   }
 
-  /* ── Divider ── */
-  hr { border-color: #0d3060 !important; }
+  hr { border-color: #1e3a5f !important; }
 
-  /* ── Select boxes & Sliders ── */
-  .stSelectbox > div > div,
-  .stSlider > div,
-  .stSelectSlider > div {
-    background: #0a1628;
-  }
-
-  /* ── Header Banner ── */
+  /* ── Hero Banner ── */
   .hero-banner {
-    background: linear-gradient(135deg, #020c1b 0%, #050e1f 30%, #0a1628 60%, #020c1b 100%);
-    border: 1px solid #0d3060;
-    border-radius: 12px;
-    padding: 20px 30px 16px;
-    margin-bottom: 18px;
+    background: linear-gradient(135deg, #070d1a 0%, #0b1323 40%, #0e1729 70%, #070d1a 100%);
+    border: 1px solid #1e3a5f;
+    border-top: 2px solid #3b82f6;
+    border-radius: 14px;
+    padding: 22px 32px 18px;
+    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(0,80,180,0.15), inset 0 0 60px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(59,130,246,0.05);
   }
-  .hero-banner::before {
+  .hero-banner::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      90deg, transparent, transparent 40px,
-      rgba(59,158,255,0.015) 40px, rgba(59,158,255,0.015) 41px
-    ),
-    repeating-linear-gradient(
-      0deg, transparent, transparent 40px,
-      rgba(59,158,255,0.015) 40px, rgba(59,158,255,0.015) 41px
-    );
+    top: 0; right: 0;
+    width: 40%;
+    height: 100%;
+    background: radial-gradient(ellipse at top right, rgba(96,165,250,0.06) 0%, transparent 70%);
     pointer-events: none;
   }
   .hero-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: #3b9eff;
-    text-shadow: 0 0 20px rgba(59,158,255,0.5);
-    margin: 0;
-    line-height: 1.3;
-  }
-  .hero-sub {
-    font-family: 'Fira Code', monospace;
-    font-size: 11px;
-    color: #4a7aaa;
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
     letter-spacing: 2px;
-    margin-top: 4px;
+    color: #f8fafc;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .hero-title span { color: #60a5fa; }
+  .hero-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #475569;
+    letter-spacing: 2px;
+    margin-top: 5px;
+    text-transform: uppercase;
   }
   .hero-tag {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 9px;
-    letter-spacing: 3px;
-    color: #00b4d8;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #22d3ee;
     text-transform: uppercase;
-    border: 1px solid #00b4d8;
+    border: 1px solid rgba(34,211,238,0.4);
     border-radius: 4px;
-    padding: 2px 8px;
+    padding: 3px 10px;
     display: inline-block;
-    box-shadow: 0 0 8px rgba(0,180,216,0.3);
-    margin-bottom: 6px;
+    background: rgba(34,211,238,0.05);
+    margin-bottom: 8px;
   }
 
   /* ── Author Cards ── */
   .author-grid {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-top: 10px;
+    margin-top: 12px;
   }
   .author-card {
-    background: linear-gradient(135deg, #0a1628, #050e1f);
-    border: 1px solid #0d3060;
+    background: rgba(30,58,95,0.3);
+    border: 1px solid #1e3a5f;
     border-radius: 8px;
     padding: 8px 14px;
-    font-family: 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    color: #7ab8ff;
+    color: #7dd3fc;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 0 10px rgba(0,60,150,0.2);
-    transition: all 0.3s ease;
+    gap: 10px;
+    transition: all 0.2s ease;
   }
   .author-card:hover {
-    border-color: #3b9eff;
-    box-shadow: 0 0 18px rgba(59,158,255,0.3);
-    color: #a8d4ff;
+    border-color: #3b82f6;
+    background: rgba(30,58,95,0.5);
+    color: #bae6fd;
   }
   .author-num {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 9px;
-    color: #3b9eff;
-    letter-spacing: 1px;
+    font-weight: 600;
+    color: #60a5fa;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
   }
 
   /* ── Section Headers ── */
   .section-header {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #3b9eff;
+    color: #60a5fa;
     text-transform: uppercase;
-    border-bottom: 1px solid #0d3060;
+    border-bottom: 1px solid #1e3a5f;
     padding-bottom: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     margin-top: 8px;
-    text-shadow: 0 0 10px rgba(59,158,255,0.3);
   }
 
   /* ── Workflow Cards ── */
   .workflow-card {
-    background: linear-gradient(135deg, #0a1628, #050e1f);
-    border: 1px solid #0d3060;
-    border-left: 3px solid #3b9eff;
-    border-radius: 0 8px 8px 0;
+    background: linear-gradient(135deg, #0e1729, #0b1323);
+    border: 1px solid #1e3a5f;
+    border-left: 3px solid #3b82f6;
+    border-radius: 0 10px 10px 0;
     padding: 14px 18px;
     margin-bottom: 10px;
-    font-family: 'Inter', sans-serif;
   }
   .workflow-card-title {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
-    color: #3b9eff;
-    letter-spacing: 2px;
+    font-weight: 700;
+    color: #3b82f6;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     margin-bottom: 6px;
   }
   .workflow-card-body {
-    font-size: 14px;
-    color: #8ab4d8;
-    line-height: 1.5;
+    font-size: 13px;
+    color: #7c9cbf;
+    line-height: 1.6;
+    font-family: 'Space Grotesk', sans-serif;
   }
   .wc-green  { border-left-color: #22c55e; }
   .wc-yellow { border-left-color: #eab308; }
   .wc-purple { border-left-color: #a855f7; }
   .wc-cyan   { border-left-color: #06b6d4; }
   .wc-orange { border-left-color: #f97316; }
-
-  .wc-green  .workflow-card-title  { color: #22c55e; }
-  .wc-yellow .workflow-card-title  { color: #eab308; }
-  .wc-purple .workflow-card-title  { color: #a855f7; }
-  .wc-cyan   .workflow-card-title  { color: #06b6d4; }
-  .wc-orange .workflow-card-title  { color: #f97316; }
-
-  /* ── Badge ── */
-  .badge {
-    display: inline-block;
-    font-family: 'Orbitron', monospace;
-    font-size: 8px;
-    letter-spacing: 1px;
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-left: 6px;
-    vertical-align: middle;
-  }
-  .badge-blue   { background: rgba(59,158,255,0.15); border: 1px solid #3b9eff; color: #3b9eff; }
-  .badge-green  { background: rgba(34,197,94,0.15);  border: 1px solid #22c55e; color: #22c55e; }
-  .badge-purple { background: rgba(168,85,247,0.15); border: 1px solid #a855f7; color: #a855f7; }
-  .badge-orange { background: rgba(249,115,22,0.15); border: 1px solid #f97316; color: #f97316; }
+  .wc-green  .workflow-card-title { color: #22c55e; }
+  .wc-yellow .workflow-card-title { color: #eab308; }
+  .wc-purple .workflow-card-title { color: #a855f7; }
+  .wc-cyan   .workflow-card-title { color: #06b6d4; }
+  .wc-orange .workflow-card-title { color: #f97316; }
 
   /* ── Code blocks ── */
-  .stCode {
-    font-family: 'Fira Code', monospace !important;
-    background: #050e1f !important;
-    border: 1px solid #0d3060 !important;
+  .stCode, code {
+    font-family: 'JetBrains Mono', monospace !important;
+    background: #0b1323 !important;
+    border: 1px solid #1e3a5f !important;
+    border-radius: 6px !important;
   }
 
   /* ── Table ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Fira Code', monospace;
-    font-size: 12px;
-  }
+  table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
   th {
-    background: #0a1628;
-    color: #3b9eff;
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    padding: 8px 12px;
-    border: 1px solid #0d3060;
+    background: #0e1729;
+    color: #60a5fa;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 9px 13px;
+    border: 1px solid #1e3a5f;
     text-transform: uppercase;
   }
-  td {
-    background: #050e1f;
-    color: #8ab4d8;
-    padding: 7px 12px;
-    border: 1px solid #0d3060;
-  }
-  tr:hover td { background: #0a1628; color: #c9d8f0; }
+  td { background: #0b1323; color: #7c9cbf; padding: 8px 13px; border: 1px solid #1e3a5f; }
+  tr:hover td { background: #0e1729; color: #cbd5e1; }
 
   /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #020817; }
-  ::-webkit-scrollbar-thumb { background: #0d3060; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3b9eff; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #070d1a; }
+  ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
 
   /* ── Radio / Checkboxes ── */
   .stRadio label, .stCheckbox label {
-    font-family: 'Inter', sans-serif;
-    color: #8ab4d8;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #7c9cbf;
+  }
+
+  /* ── Select / Slider labels ── */
+  .stSelectbox label, .stSlider label, .stSelectSlider label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 13px !important;
+    color: #94a3b8 !important;
   }
 </style>
 """, unsafe_allow_html=True)
@@ -368,13 +352,17 @@ st.markdown("""
 # ──────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;
-                color:#3b9eff;letter-spacing:3px;text-align:center;
-                padding:10px 0 4px;text-shadow:0 0 15px rgba(59,158,255,0.5);">
-      📡 CIC FILTER<br>
-      <span style="font-size:9px;color:#4a7aaa;letter-spacing:4px;">CONTROL PANEL</span>
+    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+                color:#60a5fa;letter-spacing:2px;text-align:center;
+                padding:12px 0 6px;">
+      📡 CIC FILTER
     </div>
-    <hr style="border-color:#0d3060;margin:8px 0 12px;">
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:9px;
+                color:#475569;letter-spacing:3px;text-align:center;
+                text-transform:uppercase;margin-bottom:10px;">
+      Control Panel
+    </div>
+    <hr style="border-color:#1e3a5f;margin:0 0 14px;">
     """, unsafe_allow_html=True)
 
     architecture = st.selectbox(
@@ -425,14 +413,14 @@ with st.sidebar:
         fs_out_str = f"{fs_out:.1f} Hz"
 
     st.markdown("---")
-    st.markdown("""<div style="font-family:'Orbitron',monospace;font-size:9px;
-                    color:#4a7aaa;letter-spacing:2px;">OUTPUT RATE</div>""",
+    st.markdown("""<div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;
+                    color:#475569;letter-spacing:2px;text-transform:uppercase;">Output Rate</div>""",
                 unsafe_allow_html=True)
     st.metric("", fs_out_str)
     st.markdown("---")
 
-    st.markdown("""<div style="font-family:'Orbitron',monospace;font-size:9px;
-                    color:#4a7aaa;letter-spacing:2px;margin-bottom:8px;">TEST SIGNAL</div>""",
+    st.markdown("""<div style="font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;
+                    color:#475569;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Test Signal</div>""",
                 unsafe_allow_html=True)
     sig_type  = st.selectbox("Signal Type",
         ["Sine","Ramp","DC","Multi-tone","Chirp","Square","Random Noise"])
@@ -444,9 +432,9 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("""
-    <div style="font-family:'Orbitron',monospace;font-size:8px;color:#1a4080;
-                letter-spacing:2px;text-align:center;padding-top:4px;">
-      TEAM MAVERICKS · 2024<br>5G/6G RF FRONT-END
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:8px;color:#1e3a5f;
+                letter-spacing:2px;text-align:center;padding-top:4px;text-transform:uppercase;">
+      Team Mavericks · 2024<br>5G/6G RF Front-End
     </div>
     """, unsafe_allow_html=True)
 
@@ -481,32 +469,67 @@ def make_signal(kind, n, fs, f0, noise_db):
 x_in_raw = make_signal(sig_type, n_samples, fs_in, f_sig, noise_db)
 
 # ──────────────────────────────────────────────────────────────
-# CIC MODELS
+# CIC MODELS — FIXED COMB FILTER
+# NOTE: Comb computes y[n] - y[n-M]  (delay-M first-order diff)
+#       NOT np.diff(y, M) which gives M-th ORDER difference —
+#       that would be wrong for M>1.
 # ──────────────────────────────────────────────────────────────
+
+def apply_comb(y, M):
+    """
+    Correct CIC comb: y_out[n] = y[n] - y[n-M]
+    For M=1: standard first difference (same as np.diff)
+    For M=2: y[n] - y[n-2]  (NOT second-order diff)
+    Past samples beyond the buffer are assumed 0.
+    """
+    y = np.asarray(y, dtype=float)
+    out = np.empty_like(y)
+    out[:M]  = y[:M]                  # no history yet → subtract 0
+    out[M:]  = y[M:] - y[:-M]
+    return out
 
 def cic_basic(x, R, N, M=1):
     y = x.astype(float)
+    # N integrators at Fs_in
     for _ in range(N):
         y = np.cumsum(y)
-    y = y[::R]
+    # Downsample by R
+    y = y[::R].copy()
+    # N comb sections at Fs_out
     for _ in range(N):
-        y = np.diff(y, M, prepend=np.zeros(M))
+        y = apply_comb(y, M)
     return y
 
 def cic_pipelined(x, R, N, M=1):
+    """
+    Matches RTL cic_filter_pipelined.v:
+    - D flip-flop (register) inserted after every integrator stage
+    - D flip-flop inserted after every comb stage
+    - Pipeline depth = 2N register stages
+    """
     y = x.astype(float)
+    # N integrators + pipeline registers at Fs_in
     for _ in range(N):
         y = np.cumsum(y)
-        reg = np.roll(y, 1); reg[0] = 0.0
+        reg = np.roll(y, 1)
+        reg[0] = 0.0
         y = reg
-    y = y[::R]
+    # Downsample by R
+    y = y[::R].copy()
+    # N comb + pipeline registers at Fs_out
     for _ in range(N):
-        y = np.diff(y, M, prepend=np.zeros(M))
-        reg = np.roll(y, 1); reg[0] = 0.0
+        y = apply_comb(y, M)
+        reg = np.roll(y, 1)
+        reg[0] = 0.0
         y = reg
     return y
 
 def cic_folded(x, R, N, M=1):
+    """
+    Folded: functionally identical to Basic (same I/O),
+    just uses 1 shared adder time-multiplexed — captured here
+    by reusing cic_basic.
+    """
     return cic_basic(x, R, N, M)
 
 def freq_response(R, N, M, fs, npts=4096):
@@ -533,7 +556,6 @@ def snr_calc(sig, f0, fs):
 def sfdr_calc(sig, fs):
     nfft = 2048
     Y  = np.abs(np.fft.rfft(sig, n=nfft))
-    fr = np.fft.rfftfreq(nfft, 1/fs)
     peak_idx = np.argmax(Y)
     mask = np.ones(len(Y), dtype=bool)
     mask[max(0,peak_idx-3):peak_idx+4] = False
@@ -554,7 +576,7 @@ def thd_calc(sig, f0, fs, harmonics=5):
             harm_pow += Y[hi]**2
     return 10*np.log10(harm_pow / max(fund_pow, 1e-30))
 
-# Run chosen architecture
+# ── Run chosen architecture ──
 if architecture == "Pipelined":
     y_out = cic_pipelined(x_in_raw, R, N, M)
 elif architecture == "Folded":
@@ -591,11 +613,6 @@ def find_verilog():
     return None, None
 
 def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
-    """
-    arch: "Pipelined" → cic_filter_pipelined.v
-          "Folded"    → cic_filter_folded.v
-          "Basic"     → cic_filter.v
-    """
     arch_file_map = {
         "Pipelined": "cic_filter_pipelined.v",
         "Folded":    "cic_filter_folded.v",
@@ -606,14 +623,12 @@ def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
         "Folded":    "cic_tb_folded.v",
         "Basic":     "cic_testbench.v",
     }
-
     candidates = [
         VLOG_DIR,
         os.path.dirname(os.path.abspath(__file__)),
         "/mount/src/cic_decimation_filter/verilog",
         "/mount/src/cic_decimation_filter",
     ]
-
     fpath, tpath = None, None
     for d in candidates:
         fp = os.path.join(d, arch_file_map.get(arch, "cic_filter.v"))
@@ -621,7 +636,6 @@ def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
         if os.path.exists(fp) and os.path.exists(tp):
             fpath, tpath = fp, tp
             break
-        # fallback: try generic names
         fp2 = os.path.join(d, "cic_filter.v")
         tp2 = os.path.join(d, "cic_testbench.v")
         if os.path.exists(fp2) and os.path.exists(tp2):
@@ -631,8 +645,7 @@ def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
     if fpath is None:
         return None, (
             f"Verilog files not found for arch='{arch}'.\n"
-            f"Expected: `verilog/{arch_file_map[arch]}` + `verilog/{tb_file_map[arch]}`\n"
-            "See the RTL SIMULATION tab for required file names."
+            f"Expected: `verilog/{arch_file_map[arch]}` + `verilog/{tb_file_map[arch]}`"
         )
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -664,11 +677,11 @@ def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
 # ──────────────────────────────────────────────────────────────
 DARK = dict(
     paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="#020c1b",
-    font=dict(color="#8ab4d8", family="Fira Code"),
+    plot_bgcolor="#0b1120",
+    font=dict(color="#7c9cbf", family="JetBrains Mono"),
     margin=dict(t=50, b=30, l=55, r=20),
 )
-GRID = dict(gridcolor="#0d2040", zerolinecolor="#1a3060", gridwidth=1)
+GRID = dict(gridcolor="#132038", zerolinecolor="#1e3a5f", gridwidth=1)
 
 def apply_dark(fig, height=420):
     fig.update_layout(height=height, **DARK)
@@ -676,58 +689,58 @@ def apply_dark(fig, height=420):
         if ax.startswith("xaxis") or ax.startswith("yaxis"):
             fig.layout[ax].update(**GRID)
     fig.update_layout(
-        title_font=dict(family="Orbitron", size=12, color="#3b9eff"),
+        title_font=dict(family="Space Grotesk", size=12, color="#60a5fa"),
     )
     return fig
 
-# colour palette
-C_BLUE   = "#3b9eff"
-C_CYAN   = "#06b6d4"
-C_GREEN  = "#22c55e"
-C_ORANGE = "#f97316"
-C_PURPLE = "#a855f7"
-C_PINK   = "#ec4899"
-C_YELLOW = "#eab308"
+# Colour palette
+C_BLUE   = "#60a5fa"
+C_CYAN   = "#22d3ee"
+C_GREEN  = "#4ade80"
+C_ORANGE = "#fb923c"
+C_PURPLE = "#c084fc"
+C_PINK   = "#f472b6"
+C_YELLOW = "#fbbf24"
 
 # ──────────────────────────────────────────────────────────────
 # HERO BANNER
 # ──────────────────────────────────────────────────────────────
-bg_bit = bit_growth(R, N, M)
+bg_bit  = bit_growth(R, N, M)
 snr_in  = snr_calc(x_norm, f_sig, fs_in)
 snr_out = snr_calc(y_norm, f_sig, fs_out)
 
 st.markdown(f"""
 <div class="hero-banner">
-  <div class="hero-tag">5G / 6G RF FRONT-END · DSP PROJECT</div>
-  <div class="hero-title">📡 CIC DECIMATION FILTER</div>
-  <div class="hero-sub">INTERACTIVE RTL SIMULATOR · TEAM MAVERICKS</div>
-  <div class="author-grid" style="margin-top:12px;">
+  <div class="hero-tag">5G / 6G RF Front-End · DSP Project</div>
+  <div class="hero-title">📡 CIC <span>Decimation</span> Filter</div>
+  <div class="hero-sub">Interactive RTL Simulator · Team Mavericks</div>
+  <div class="author-grid" style="margin-top:14px;">
     <div class="author-card">
-      <span style="color:#3b9eff;font-size:16px;">①</span>
+      <span style="color:#60a5fa;font-size:18px;font-family:Syne,sans-serif;font-weight:800;">①</span>
       <div>
-        <div style="color:#a8d4ff;font-size:12px;font-weight:600;">Shashank T</div>
+        <div style="color:#e2e8f0;font-size:12px;font-weight:600;font-family:Space Grotesk,sans-serif;">Shashank T</div>
         <div class="author-num">REG · 23BVD1031</div>
       </div>
     </div>
     <div class="author-card">
-      <span style="color:#06b6d4;font-size:16px;">②</span>
+      <span style="color:#22d3ee;font-size:18px;font-family:Syne,sans-serif;font-weight:800;">②</span>
       <div>
-        <div style="color:#a8d4ff;font-size:12px;font-weight:600;">Pasyanth P</div>
+        <div style="color:#e2e8f0;font-size:12px;font-weight:600;font-family:Space Grotesk,sans-serif;">Pasyanth P</div>
         <div class="author-num">REG · 23BVD1004</div>
       </div>
     </div>
     <div class="author-card">
-      <span style="color:#a855f7;font-size:16px;">③</span>
+      <span style="color:#c084fc;font-size:18px;font-family:Syne,sans-serif;font-weight:800;">③</span>
       <div>
-        <div style="color:#a8d4ff;font-size:12px;font-weight:600;">Abin Mohammad</div>
+        <div style="color:#e2e8f0;font-size:12px;font-weight:600;font-family:Space Grotesk,sans-serif;">Abin Mohammad</div>
         <div class="author-num">REG · 23BVD1047</div>
       </div>
     </div>
     <div class="author-card">
-      <span style="color:#22c55e;font-size:16px;">④</span>
+      <span style="color:#4ade80;font-size:18px;font-family:Syne,sans-serif;font-weight:800;">④</span>
       <div>
-        <div style="color:#a8d4ff;font-size:12px;font-weight:600;">Yagnesh</div>
-        <div class="author-num">TEAM MAVERICKS</div>
+        <div style="color:#e2e8f0;font-size:12px;font-weight:600;font-family:Space Grotesk,sans-serif;">Yagnesh</div>
+        <div class="author-num">Team Mavericks</div>
       </div>
     </div>
   </div>
@@ -736,26 +749,25 @@ st.markdown(f"""
 
 # ── KPI Row ──
 c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
-c1.metric("Architecture",   architecture)
-c2.metric("Input Rate",     fs_label)
-c3.metric("Output Rate",    fs_out_str)
-c4.metric("Decimation R",   f"÷{R}")
-c5.metric("Stages N",       str(N))
-c6.metric("Bit Growth",     f"+{bg_bit} bits")
-c7.metric("SNR Δ",          f"{snr_out-snr_in:+.1f} dB")
+c1.metric("Architecture",  architecture)
+c2.metric("Input Rate",    fs_label)
+c3.metric("Output Rate",   fs_out_str)
+c4.metric("Decimation R",  f"÷{R}")
+c5.metric("Stages N",      str(N))
+c6.metric("Bit Growth",    f"+{bg_bit} bits")
+c7.metric("SNR Δ",         f"{snr_out-snr_in:+.1f} dB")
 
 st.markdown("<div style='margin-bottom:8px;'></div>", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────
-# TABS
+# TABS  (Project Flow removed)
 # ──────────────────────────────────────────────────────────────
-tab_sim, tab_freq, tab_arch, tab_stages, tab_metrics, tab_flow, tab_vlog, tab_vcode = st.tabs([
+tab_sim, tab_freq, tab_arch, tab_stages, tab_metrics, tab_vlog, tab_vcode = st.tabs([
     "🌊 SIMULATE",
     "📈 FREQ RESPONSE",
     "🏗️ ARCHITECTURE",
     "📊 STAGE ANALYSIS",
     "📐 METRICS",
-    "🗺️ PROJECT FLOW",
     "⚡ RTL SIMULATION",
     "📄 VERILOG CODE",
 ])
@@ -764,7 +776,7 @@ tab_sim, tab_freq, tab_arch, tab_stages, tab_metrics, tab_flow, tab_vlog, tab_vc
 # TAB 1 — SIMULATE
 # ══════════════════════════════════════════════════════════════
 with tab_sim:
-    st.markdown('<div class="section-header">TIME-DOMAIN WAVEFORMS & SPECTRAL ANALYSIS</div>',
+    st.markdown('<div class="section-header">Time-Domain Waveforms & Spectral Analysis</div>',
                 unsafe_allow_html=True)
 
     disp_in  = min(n_samples, 300)
@@ -773,24 +785,24 @@ with tab_sim:
     fig = make_subplots(
         rows=2, cols=2,
         subplot_titles=[
-            f"◈ Input x[n]  ·  {fs_label}",
-            f"◈ Output y[m]  ·  {fs_out_str}",
-            "◈ Input Spectrum",
-            "◈ Output Spectrum",
+            f"Input x[n]  ·  {fs_label}",
+            f"Output y[m]  ·  {fs_out_str}",
+            "Input Spectrum",
+            "Output Spectrum",
         ],
         vertical_spacing=0.18, horizontal_spacing=0.08,
     )
     fig.add_trace(go.Scatter(
         x=t_in[:disp_in], y=x_norm[:disp_in],
-        mode="lines", line=dict(color=C_BLUE, width=1.3),
-        fill='tozeroy', fillcolor="rgba(59,158,255,0.06)", name="x[n]"
+        mode="lines", line=dict(color=C_BLUE, width=1.4),
+        fill='tozeroy', fillcolor="rgba(96,165,250,0.07)", name="x[n]"
     ), row=1, col=1)
 
     y_fnorm = y_out / (np.max(np.abs(y_out))+1e-12)
     fig.add_trace(go.Scatter(
         x=t_out[:disp_out], y=y_fnorm[:disp_out],
-        mode="lines", line=dict(color=C_ORANGE, width=1.5),
-        fill='tozeroy', fillcolor="rgba(249,115,22,0.06)", name="y[m]"
+        mode="lines", line=dict(color=C_ORANGE, width=1.6),
+        fill='tozeroy', fillcolor="rgba(251,146,60,0.07)", name="y[m]"
     ), row=1, col=2)
 
     nfft = 2048
@@ -798,14 +810,14 @@ with tab_sim:
     fx = np.fft.rfftfreq(nfft, 1/fs_in) / 1e3
     fig.add_trace(go.Scatter(
         x=fx, y=20*np.log10(np.maximum(X,1e-10)),
-        mode="lines", line=dict(color=C_BLUE, width=0.9), name="Input PSD"
+        mode="lines", line=dict(color=C_BLUE, width=1.0), name="Input PSD"
     ), row=2, col=1)
 
     Y  = np.abs(np.fft.rfft(y_norm, n=nfft)) / nfft
     fy = np.fft.rfftfreq(nfft, R/fs_in) / 1e3
     fig.add_trace(go.Scatter(
         x=fy, y=20*np.log10(np.maximum(Y,1e-10)),
-        mode="lines", line=dict(color=C_ORANGE, width=0.9), name="Output PSD"
+        mode="lines", line=dict(color=C_ORANGE, width=1.0), name="Output PSD"
     ), row=2, col=2)
 
     fig.update_xaxes(title_text="Time (µs)", title_font=dict(size=10), row=1, col=1)
@@ -816,13 +828,11 @@ with tab_sim:
                      range=[0, fs_out/2e3], row=2, col=2)
     fig.update_yaxes(title_text="Amplitude", title_font=dict(size=10), row=1, col=1)
     fig.update_yaxes(title_text="Amplitude", title_font=dict(size=10), row=1, col=2)
-    fig.update_yaxes(title_text="dBFS", title_font=dict(size=10),
-                     range=[-100, 5], row=2, col=1)
-    fig.update_yaxes(title_text="dBFS", title_font=dict(size=10),
-                     range=[-100, 5], row=2, col=2)
+    fig.update_yaxes(title_text="dBFS", title_font=dict(size=10), range=[-100, 5], row=2, col=1)
+    fig.update_yaxes(title_text="dBFS", title_font=dict(size=10), range=[-100, 5], row=2, col=2)
 
     for ann in fig.layout.annotations:
-        ann.font = dict(family="Orbitron", size=10, color="#3b9eff")
+        ann.font = dict(family="Space Grotesk", size=10, color="#60a5fa")
 
     apply_dark(fig, height=560)
     fig.update_layout(showlegend=False)
@@ -831,20 +841,20 @@ with tab_sim:
     sfdr_out = sfdr_calc(y_norm, fs_out)
     thd_out  = thd_calc(y_norm, f_sig, fs_out) if sig_type in ["Sine","Square","Multi-tone"] else float('nan')
     s1, s2, s3, s4, s5 = st.columns(5)
-    s1.metric("Input SNR",      f"{snr_in:.1f} dB")
-    s2.metric("Output SNR",     f"{snr_out:.1f} dB")
-    s3.metric("SNR Change",     f"{snr_out-snr_in:+.1f} dB")
-    s4.metric("SFDR (out)",     f"{sfdr_out:.1f} dB")
+    s1.metric("Input SNR",  f"{snr_in:.1f} dB")
+    s2.metric("Output SNR", f"{snr_out:.1f} dB")
+    s3.metric("SNR Change", f"{snr_out-snr_in:+.1f} dB")
+    s4.metric("SFDR (out)", f"{sfdr_out:.1f} dB")
     if not np.isnan(thd_out):
-        s5.metric("THD (out)",  f"{thd_out:.1f} dB")
+        s5.metric("THD (out)", f"{thd_out:.1f} dB")
     else:
-        s5.metric("THD (out)",  "N/A")
+        s5.metric("THD (out)", "N/A")
 
 # ══════════════════════════════════════════════════════════════
 # TAB 2 — FREQUENCY RESPONSE
 # ══════════════════════════════════════════════════════════════
 with tab_freq:
-    st.markdown('<div class="section-header">CIC MAGNITUDE RESPONSE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">CIC Magnitude Response</div>', unsafe_allow_html=True)
 
     col_main, col_ctrl = st.columns([4, 1])
     with col_ctrl:
@@ -863,21 +873,19 @@ with tab_freq:
             x=f_ax[mask]/1e6, y=H_db[mask],
             mode="lines", line=dict(color=C_BLUE, width=2),
             name="|H(f)|",
-            fill='tozeroy', fillcolor="rgba(59,158,255,0.04)"
+            fill='tozeroy', fillcolor="rgba(96,165,250,0.05)"
         ))
 
         if show_comp:
             f_comp = f_ax[mask]
-            with np.errstate(divide="ignore", invalid="ignore"):
-                h_comp_inv = -H_db[mask] * 0.5
+            h_comp_inv = -H_db[mask] * 0.5
             fig_fr.add_trace(go.Scatter(
                 x=f_comp/1e6, y=h_comp_inv,
                 mode="lines", line=dict(color=C_GREEN, width=1.5, dash="dot"),
                 name="Compensation gain"
             ))
-            comp_total = H_db[mask] + h_comp_inv
             fig_fr.add_trace(go.Scatter(
-                x=f_comp/1e6, y=comp_total,
+                x=f_comp/1e6, y=H_db[mask] + h_comp_inv,
                 mode="lines", line=dict(color=C_YELLOW, width=1.5),
                 name="Compensated |H(f)|"
             ))
@@ -897,26 +905,25 @@ with tab_freq:
                 annotation_font=dict(size=9, color=C_GREEN))
 
         fig_fr.add_hline(y=-3, line=dict(color=C_ORANGE, dash="dash", width=1),
-                         annotation_text="-3dB",
-                         annotation_font=dict(size=9, color=C_ORANGE))
+                         annotation_text="-3dB", annotation_font=dict(size=9, color=C_ORANGE))
         fig_fr.add_hline(y=-6, line=dict(color=C_PURPLE, dash="dash", width=1))
 
         fig_fr.update_layout(
             title=f"CIC Response  [N={N}, R={R}, M={M}, Fs={fs_in/1e6:.1f} MHz]",
             xaxis_title="Frequency (MHz)", yaxis_title="Magnitude (dB)",
             xaxis_range=[0, f_lim], yaxis_range=[y_min_db, 5],
-            legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="Fira Code", size=10)),
+            legend=dict(bgcolor="rgba(7,13,26,0.9)", bordercolor="#1e3a5f",
+                        font=dict(family="JetBrains Mono", size=10)),
         )
         apply_dark(fig_fr)
         st.plotly_chart(fig_fr, use_container_width=True)
 
-    st.markdown('<div class="section-header">PASSBAND DETAIL</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Passband Detail</div>', unsafe_allow_html=True)
     pb_mask = f_ax <= 0.5*fs_out
     fig_pb  = go.Figure(go.Scatter(
         x=f_ax[pb_mask]/1e3, y=H_db[pb_mask],
         mode="lines", line=dict(color=C_CYAN, width=2),
-        fill='tozeroy', fillcolor="rgba(6,182,212,0.05)"
+        fill='tozeroy', fillcolor="rgba(34,211,238,0.06)"
     ))
     fig_pb.add_hline(y=-3, line=dict(color=C_ORANGE, dash="dash"))
     fig_pb.update_layout(
@@ -944,7 +951,7 @@ with tab_freq:
 # TAB 3 — ARCHITECTURE
 # ══════════════════════════════════════════════════════════════
 with tab_arch:
-    st.markdown(f'<div class="section-header">BLOCK DIAGRAM — {architecture} (N={N}, R={R}, M={M})</div>',
+    st.markdown(f'<div class="section-header">Block Diagram — {architecture} (N={N}, R={R}, M={M})</div>',
                 unsafe_allow_html=True)
 
     fig_bd = go.Figure()
@@ -964,18 +971,18 @@ with tab_arch:
             line=dict(color=ec, width=2),
             fillcolor=f"rgba({r2},{g2},{b2},{fc_a})")
         fig.add_annotation(x=cx, y=cy, text=label, showarrow=False,
-            font=dict(size=10, color="#ffffff", family="Fira Code"), align="center")
+            font=dict(size=10, color="#ffffff", family="JetBrains Mono"), align="center")
 
     def arr(fig, x0, x1, y=1.0):
         fig.add_annotation(x=x1, y=y, ax=x0, ay=y,
             axref="x", ayref="y", xref="x", yref="y",
-            arrowhead=2, arrowsize=1, arrowwidth=1.5, arrowcolor="#3b6ea0")
+            arrowhead=2, arrowsize=1, arrowwidth=1.5, arrowcolor="#2d5a9e")
 
-    C_INT  = "rgb(59,158,255)"
-    C_DS   = "rgb(249,115,22)"
-    C_COMB = "rgb(34,197,94)"
-    C_FF   = "rgb(168,85,247)"
-    C_IN   = "rgb(6,182,212)"
+    C_INT  = "rgb(96,165,250)"
+    C_DS   = "rgb(251,146,60)"
+    C_COMB = "rgb(74,222,128)"
+    C_FF   = "rgb(192,132,252)"
+    C_IN   = "rgb(34,211,238)"
 
     if architecture in ("Basic", "Folded"):
         pos  = [0.5] + [1.5+i*1.35 for i in range(N)] + [1.5+N*1.35+0.7]
@@ -988,16 +995,16 @@ with tab_arch:
             arr(fig_bd, pos[i]+0.48, pos[i+1]-0.48)
         ds_x = pos[N+1]
         fig_bd.add_shape(type="line", x0=ds_x, x1=ds_x, y0=0.55, y1=1.45,
-                         line=dict(color="#334466", dash="dash"))
+                         line=dict(color="#1e3a5f", dash="dash"))
         fig_bd.add_annotation(x=ds_x-1.5, y=0.2, text="← Fs_in →",
-                               showarrow=False, font=dict(size=9,color="#4a7aaa"))
+                               showarrow=False, font=dict(size=9,color="#475569"))
         fig_bd.add_annotation(x=ds_x+1.5, y=0.2, text="← Fs_out →",
-                               showarrow=False, font=dict(size=9,color="#4a7aaa"))
+                               showarrow=False, font=dict(size=9,color="#475569"))
         if architecture == "Folded":
             fig_bd.add_annotation(x=pos[N//2+1], y=2.4,
                 text=f"⚡ 1 Shared Adder  ×{N} time-mux  |  Internal clk = {N}× Fs_in",
-                showarrow=False, font=dict(size=11, color="#f97316"),
-                bgcolor="rgba(249,115,22,0.1)", bordercolor="#f97316", borderwidth=1)
+                showarrow=False, font=dict(size=11, color="#fb923c"),
+                bgcolor="rgba(251,146,60,0.1)", bordercolor="#fb923c", borderwidth=1)
     else:  # Pipelined
         pos  = [0.5]; lbls = ["x[n]"]; cols = [C_IN]
         for i in range(N):
@@ -1015,8 +1022,8 @@ with tab_arch:
         mid = pos[len(pos)//2]
         fig_bd.add_annotation(x=mid, y=2.45,
             text=f"Pipeline depth = {2*N} FFs  |  Latency = {2*N} clocks  |  Throughput = 1 samp/clk",
-            showarrow=False, font=dict(size=11, color="#ce93d8"),
-            bgcolor="rgba(168,85,247,0.1)", bordercolor="#a855f7", borderwidth=1)
+            showarrow=False, font=dict(size=11, color="#c084fc"),
+            bgcolor="rgba(192,132,252,0.1)", bordercolor="#a855f7", borderwidth=1)
 
     apply_dark(fig_bd, height=280)
     st.plotly_chart(fig_bd, use_container_width=True)
@@ -1025,6 +1032,7 @@ with tab_arch:
         "Basic": (
             "**Basic CIC:** N integrators run at Fs_in. "
             "After ↓R downsampling, N comb (differencer) sections run at Fs_out. "
+            "Each comb stage computes `y[n] - y[n-M]` — a delay-M first-order difference. "
             "No pipeline registers — minimal hardware, but critical path spans all N adders."
         ),
         "Pipelined": (
@@ -1045,6 +1053,7 @@ with tab_arch:
     with st.expander("📐 TRANSFER FUNCTION & KEY EQUATIONS"):
         st.latex(r"H(z) = \left(\frac{1 - z^{-RM}}{1 - z^{-1}}\right)^N")
         st.latex(r"|H(f)| = \left|\frac{\sin(\pi M R f/F_s)}{\sin(\pi f/F_s)}\right|^N")
+        st.latex(r"\text{Comb: } y[n] = x[n] - x[n-M] \quad \text{(delay-M first-order difference)}")
         st.markdown(f"""
 | Parameter | Value |
 |-----------|-------|
@@ -1063,7 +1072,7 @@ with tab_arch:
 # TAB 4 — STAGE ANALYSIS
 # ══════════════════════════════════════════════════════════════
 with tab_stages:
-    st.markdown('<div class="section-header">PER-STAGE OUTPUT WAVEFORMS (normalised)</div>',
+    st.markdown('<div class="section-header">Per-Stage Output Waveforms (normalised)</div>',
                 unsafe_allow_html=True)
 
     y_stages, stage_labels = [], []
@@ -1082,15 +1091,15 @@ with tab_stages:
 
     yc2 = yc_ds.copy()
     for i in range(N):
-        yc2 = np.diff(yc2, M, prepend=np.zeros(M))
+        yc2 = apply_comb(yc2, M)           # ← FIXED: correct comb
         if architecture == "Pipelined":
             reg = np.roll(yc2,1); reg[0]=0.0; yc2=reg
         y_stages.append(yc2.copy())
         stage_labels.append(f"Comb {i+1}" + (" + FF" if architecture=="Pipelined" else ""))
 
-    STAGE_COLORS = [C_CYAN, C_BLUE, "#1E88E5", "#1565C0",
-                    C_ORANGE, "#ef4444", C_GREEN, "#43A047", "#2E7D32",
-                    C_PURPLE, "#7E57C2", C_PINK]
+    STAGE_COLORS = [C_CYAN, C_BLUE, "#3b82f6", "#1d4ed8",
+                    C_ORANGE, "#ef4444", C_GREEN, "#16a34a",
+                    C_PURPLE, "#7c3aed", C_PINK, C_YELLOW]
 
     cols_per_row = 3
     for row_start in range(0, len(y_stages), cols_per_row):
@@ -1104,29 +1113,28 @@ with tab_stages:
                 fig_s = go.Figure(go.Scatter(
                     y=s[:d]/(np.max(np.abs(s[:d]))+1e-12),
                     mode="lines",
-                    line=dict(color=col, width=1.2),
+                    line=dict(color=col, width=1.3),
                     fill='tozeroy',
-                    fillcolor="rgba(59,158,255,0.05)"
+                    fillcolor="rgba(96,165,250,0.05)"
                 ))
                 fig_s.update_layout(
                     title=lbl,
-                    title_font=dict(family="Orbitron", size=9, color=col),
-                    height=190,
-                    margin=dict(l=10,r=10,t=35,b=10),
-                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#020c1b",
-                    font=dict(color="#8ab4d8", size=9, family="Fira Code"),
-                    xaxis=dict(gridcolor="#0d2040", showticklabels=False),
-                    yaxis=dict(gridcolor="#0d2040", range=[-1.1, 1.1]),
+                    title_font=dict(family="Space Grotesk", size=10, color=col),
+                    height=195,
+                    margin=dict(l=10,r=10,t=36,b=10),
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0b1120",
+                    font=dict(color="#7c9cbf", size=9, family="JetBrains Mono"),
+                    xaxis=dict(gridcolor="#132038", showticklabels=False),
+                    yaxis=dict(gridcolor="#132038", range=[-1.1, 1.1]),
                     showlegend=False,
                 )
-                fig_s.update_traces(line_color=col)
                 st.plotly_chart(fig_s, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════
 # TAB 5 — METRICS DASHBOARD
 # ══════════════════════════════════════════════════════════════
 with tab_metrics:
-    st.markdown('<div class="section-header">PERFORMANCE METRICS & ARCHITECTURE COMPARISON</div>',
+    st.markdown('<div class="section-header">Performance Metrics & Architecture Comparison</div>',
                 unsafe_allow_html=True)
 
     bg = bit_growth(R, N, M)
@@ -1150,37 +1158,37 @@ with tab_metrics:
 
     with col_b:
         categories = ['Throughput','Speed','Area Eff.','Power Eff.','Scalability']
-        basic_scores   = [3, 2, 3, 4, 3]
-        pipeline_scores= [5, 5, 2, 2, 4]
-        folded_scores  = [3, 3, 5, 5, 3]
+        basic_scores    = [3, 2, 3, 4, 3]
+        pipeline_scores = [5, 5, 2, 2, 4]
+        folded_scores   = [3, 3, 5, 5, 3]
 
         RADAR_CONFIGS = [
-            (basic_scores,    "Basic",     C_BLUE,   "rgba(59,158,255,0.15)"),
-            (pipeline_scores, "Pipelined", C_GREEN,  "rgba(34,197,94,0.15)"),
-            (folded_scores,   "Folded",    C_PURPLE, "rgba(168,85,247,0.15)"),
+            (basic_scores,    "Basic",     C_BLUE,   "rgba(96,165,250,0.12)"),
+            (pipeline_scores, "Pipelined", C_GREEN,  "rgba(74,222,128,0.12)"),
+            (folded_scores,   "Folded",    C_PURPLE, "rgba(192,132,252,0.12)"),
         ]
         fig_radar = go.Figure()
         for scores, name, color, fill in RADAR_CONFIGS:
             fig_radar.add_trace(go.Scatterpolar(
                 r=scores + [scores[0]],
                 theta=categories + [categories[0]],
-                fill='toself',
-                name=name,
+                fill='toself', name=name,
                 line=dict(color=color, width=2),
                 fillcolor=fill,
             ))
         apply_dark(fig_radar, height=360)
         fig_radar.update_layout(
             polar=dict(
-                bgcolor="#020c1b",
-                radialaxis=dict(range=[0,5], gridcolor="#0d2040",
-                                tickfont=dict(size=8, color="#4a7aaa")),
-                angularaxis=dict(gridcolor="#0d2040",
-                                 tickfont=dict(size=9, color="#8ab4d8", family="Orbitron")),
+                bgcolor="#0b1120",
+                radialaxis=dict(range=[0,5], gridcolor="#132038",
+                                tickfont=dict(size=8, color="#475569")),
+                angularaxis=dict(gridcolor="#132038",
+                                 tickfont=dict(size=9, color="#7c9cbf",
+                                               family="Space Grotesk")),
             ),
             title="Architecture Trade-offs",
-            legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="Fira Code", size=10)),
+            legend=dict(bgcolor="rgba(7,13,26,0.9)", bordercolor="#1e3a5f",
+                        font=dict(family="JetBrains Mono", size=10)),
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
@@ -1201,8 +1209,8 @@ with tab_metrics:
         fig_bg.update_layout(
             xaxis_title="R", yaxis_title="Bit Growth",
             xaxis_type="log", title=f"Bit Growth = N·⌈log₂(R·M)⌉  [M={M}]",
-            legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="Fira Code", size=10)),
+            legend=dict(bgcolor="rgba(7,13,26,0.9)", bordercolor="#1e3a5f",
+                        font=dict(family="JetBrains Mono", size=10)),
             xaxis=dict(tickvals=R_vals, ticktext=[str(r) for r in R_vals]),
         )
         apply_dark(fig_bg, height=320)
@@ -1215,13 +1223,13 @@ with tab_metrics:
             x=[str(r) for r in R_test], y=snr_gains,
             marker=dict(
                 color=snr_gains,
-                colorscale=[[0,"#0d3060"],[0.5,"#3b9eff"],[1.0,"#06b6d4"]],
+                colorscale=[[0,"#0e1729"],[0.5,"#3b82f6"],[1.0,"#22d3ee"]],
                 showscale=False,
-                line=dict(color="#3b9eff", width=1)
+                line=dict(color="#3b82f6", width=1)
             ),
             text=[f"{g:.1f} dB" for g in snr_gains],
             textposition="outside",
-            textfont=dict(family="Fira Code", size=10, color="#3b9eff"),
+            textfont=dict(family="JetBrains Mono", size=10, color="#60a5fa"),
         ))
         fig_snr.update_layout(
             title="Theoretical SNR Gain vs R (10·log₁₀ R)",
@@ -1232,87 +1240,10 @@ with tab_metrics:
         st.plotly_chart(fig_snr, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════
-# TAB 6 — PROJECT FLOW  (Task Breakdown & Team Roles removed)
-# ══════════════════════════════════════════════════════════════
-with tab_flow:
-    st.markdown('<div class="section-header">PROJECT WORKFLOW — TEAM MAVERICKS</div>',
-                unsafe_allow_html=True)
-
-    fig_flow = go.Figure()
-    fig_flow.update_layout(
-        xaxis=dict(range=[-0.5, 12], showgrid=False, zeroline=False, visible=False),
-        yaxis=dict(range=[-0.5, 10], showgrid=False, zeroline=False, visible=False),
-        height=480, margin=dict(l=10,r=10,t=40,b=10),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#e0e0e0", family="Fira Code"),
-        title=dict(text="Summary Flow — CIC Filter Project",
-                   font=dict(family="Orbitron", size=12, color="#3b9eff"))
-    )
-
-    def flow_box(fig, cx, cy, label, sub, color, w=1.8, h=0.7):
-        rgb = re.findall(r'\d+', color)
-        r2,g2,b2 = (int(x) for x in rgb[:3])
-        fig.add_shape(type="rect",
-            x0=cx-w/2, x1=cx+w/2, y0=cy-h/2, y1=cy+h/2,
-            line=dict(color=color, width=2),
-            fillcolor=f"rgba({r2},{g2},{b2},0.15)")
-        fig.add_annotation(x=cx, y=cy+0.15, text=f"<b>{label}</b>",
-            showarrow=False, font=dict(size=11, color=color, family="Orbitron"),
-            align="center")
-        if sub:
-            fig.add_annotation(x=cx, y=cy-0.2, text=sub,
-                showarrow=False, font=dict(size=9, color="#8ab4d8"),
-                align="center")
-
-    def flow_arrow(fig, x0, y0, x1, y1):
-        fig.add_annotation(x=x1, y=y1, ax=x0, ay=y0,
-            axref="x", ayref="y", xref="x", yref="y",
-            arrowhead=2, arrowsize=1.2, arrowwidth=2, arrowcolor="#1a5499")
-
-    flow_box(fig_flow, 6, 9.0, "TOPIC", "CIC Decimation Filter for 5G/6G", "rgb(59,158,255)", w=3, h=0.8)
-
-    flow_box(fig_flow, 2, 7.2, "INDIVIDUAL", "Pipelining Analysis", "rgb(168,85,247)", w=2.5, h=0.8)
-    flow_box(fig_flow, 6, 7.2, "INDIVIDUAL", "Folding Analysis", "rgb(34,197,94)", w=2.5, h=0.8)
-    flow_box(fig_flow, 10, 7.2, "INDIVIDUAL", "CIC Theory & Ref", "rgb(249,115,22)", w=2.5, h=0.8)
-
-    flow_box(fig_flow, 4, 5.2, "GROUP TASK", "Verilog RTL Design", "rgb(6,182,212)", w=3, h=0.8)
-    flow_box(fig_flow, 8, 5.2, "GROUP TASK", "Testbench & Verify", "rgb(6,182,212)", w=3, h=0.8)
-
-    flow_box(fig_flow, 2, 3.2, "PIPELINING", "Paper Submission", "rgb(168,85,247)", w=2.8, h=0.8)
-    flow_box(fig_flow, 5, 3.2, "PIPELINING", "Code → Sim Output", "rgb(168,85,247)", w=2.8, h=0.8)
-
-    flow_box(fig_flow, 7.5, 3.2, "FOLDING", "Work on Paper", "rgb(34,197,94)", w=2.4, h=0.8)
-    flow_box(fig_flow, 10.5, 3.2, "FOLDING", "Code → Sim Output", "rgb(34,197,94)", w=2.4, h=0.8)
-
-    flow_box(fig_flow, 6, 1.2, "FINAL OUTPUT", "RTL + Simulator + Paper", "rgb(234,179,8)", w=4, h=0.8)
-
-    flow_arrow(fig_flow, 6, 8.6, 2, 7.6)
-    flow_arrow(fig_flow, 6, 8.6, 6, 7.6)
-    flow_arrow(fig_flow, 6, 8.6, 10, 7.6)
-
-    flow_arrow(fig_flow, 2, 6.8, 4, 5.6)
-    flow_arrow(fig_flow, 6, 6.8, 4, 5.6)
-    flow_arrow(fig_flow, 6, 6.8, 8, 5.6)
-    flow_arrow(fig_flow, 10, 6.8, 8, 5.6)
-
-    flow_arrow(fig_flow, 4, 4.8, 2, 3.6)
-    flow_arrow(fig_flow, 4, 4.8, 5, 3.6)
-    flow_arrow(fig_flow, 8, 4.8, 7.5, 3.6)
-    flow_arrow(fig_flow, 8, 4.8, 10.5, 3.6)
-
-    flow_arrow(fig_flow, 2, 2.8, 6, 1.6)
-    flow_arrow(fig_flow, 5, 2.8, 6, 1.6)
-    flow_arrow(fig_flow, 7.5, 2.8, 6, 1.6)
-    flow_arrow(fig_flow, 10.5, 2.8, 6, 1.6)
-
-    apply_dark(fig_flow, height=480)
-    st.plotly_chart(fig_flow, use_container_width=True)
-
-# ══════════════════════════════════════════════════════════════
-# TAB 7 — VERILOG SIMULATION
+# TAB 6 — VERILOG SIMULATION
 # ══════════════════════════════════════════════════════════════
 with tab_vlog:
-    st.markdown('<div class="section-header">RTL SIMULATION VIA IVERILOG</div>',
+    st.markdown('<div class="section-header">RTL Simulation via Icarus Verilog</div>',
                 unsafe_allow_html=True)
 
     st.info(
@@ -1354,7 +1285,7 @@ with tab_vlog:
                     mode="lines+markers",
                     line=dict(color=C_GREEN, width=2),
                     marker=dict(size=6, color=C_GREEN),
-                    fill='tozeroy', fillcolor="rgba(34,197,94,0.05)"
+                    fill='tozeroy', fillcolor="rgba(74,222,128,0.06)"
                 ))
                 fig_v.update_layout(
                     title=f"RTL Output — valid_out samples  [{sim_arch}, R={sim_r}, N={sim_n}]",
@@ -1364,7 +1295,7 @@ with tab_vlog:
                 st.plotly_chart(fig_v, use_container_width=True)
 
     st.markdown("---")
-    st.markdown('<div class="section-header">ARCHITECTURE COMPARISON TABLE</div>',
+    st.markdown('<div class="section-header">Architecture Comparison Table</div>',
                 unsafe_allow_html=True)
     bg = bit_growth(R, N, M)
     st.markdown(f"""
@@ -1382,15 +1313,14 @@ with tab_vlog:
 """)
 
 # ══════════════════════════════════════════════════════════════
-# TAB 8 — VERILOG CODE VIEWER
+# TAB 7 — VERILOG CODE VIEWER
 # ══════════════════════════════════════════════════════════════
 with tab_vcode:
     fpath, tpath = find_verilog()
 
-    st.markdown('<div class="section-header">cic_filter_pipelined.v — PIPELINED RTL</div>',
+    st.markdown('<div class="section-header">cic_filter_pipelined.v — Pipelined RTL</div>',
                 unsafe_allow_html=True)
 
-    # Try pipelined first, fall back to generic
     pip_path = None
     for d in [VLOG_DIR,
               os.path.dirname(os.path.abspath(__file__)),
@@ -1401,7 +1331,7 @@ with tab_vcode:
             pip_path = p
             break
     if pip_path is None and fpath:
-        pip_path = fpath   # fallback to whatever was found
+        pip_path = fpath
 
     if pip_path:
         with open(pip_path) as f:
@@ -1409,7 +1339,7 @@ with tab_vcode:
     else:
         st.warning("cic_filter_pipelined.v not found. Expected: `./verilog/cic_filter_pipelined.v`")
 
-    st.markdown('<div class="section-header">cic_filter_folded.v — FOLDED RTL</div>',
+    st.markdown('<div class="section-header">cic_filter_folded.v — Folded RTL</div>',
                 unsafe_allow_html=True)
     fold_path = None
     for d in [VLOG_DIR,
@@ -1426,7 +1356,7 @@ with tab_vcode:
     else:
         st.warning("cic_filter_folded.v not found. Expected: `./verilog/cic_filter_folded.v`")
 
-    st.markdown('<div class="section-header">cic_filter.v — BASIC RTL</div>',
+    st.markdown('<div class="section-header">cic_filter.v — Basic RTL</div>',
                 unsafe_allow_html=True)
     if fpath:
         with open(fpath) as f:
@@ -1434,7 +1364,7 @@ with tab_vcode:
     else:
         st.warning("cic_filter.v not found. Expected: `./verilog/cic_filter.v`")
 
-    st.markdown('<div class="section-header">TESTBENCHES</div>',
+    st.markdown('<div class="section-header">Testbenches</div>',
                 unsafe_allow_html=True)
     if tpath:
         with open(tpath) as f:
@@ -1444,12 +1374,12 @@ with tab_vcode:
 
     st.markdown("---")
     st.markdown("""
-<div style="font-family:'Fira Code',monospace;font-size:11px;color:#4a7aaa;
-            background:#050e1f;border:1px solid #0d3060;border-radius:6px;padding:14px;">
+<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#475569;
+            background:#0b1323;border:1px solid #1e3a5f;border-radius:8px;padding:16px;">
   📎 GitHub: <a href="https://github.com/shashankchowdary-921/cic_decimation_filter"
-               style="color:#3b9eff;">github.com/shashankchowdary-921/cic_decimation_filter</a><br>
+               style="color:#60a5fa;text-decoration:none;">github.com/shashankchowdary-921/cic_decimation_filter</a><br>
   🌐 Live App: <a href="https://cic-decimation-filter.streamlit.app/"
-               style="color:#06b6d4;">cic-decimation-filter.streamlit.app</a><br>
+               style="color:#22d3ee;text-decoration:none;">cic-decimation-filter.streamlit.app</a><br>
   📄 Reference: Hogenauer, E.B. — IEEE Trans. ASSP, vol.29 no.2, Apr 1981
 </div>
 """, unsafe_allow_html=True)
@@ -1459,10 +1389,11 @@ with tab_vcode:
 # ──────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("""
-<div style="text-align:center;font-family:'Orbitron',monospace;font-size:9px;
-            color:#1a4080;letter-spacing:3px;padding:6px 0 2px;">
-  CIC DECIMATION FILTER SIMULATOR · TEAM MAVERICKS · 5G/6G RF FRONT-END
-  <span style="color:#0d3060;"> · </span>
-  SHASHANK · PASYANTH · ABIN · YAGNESH
+<div style="text-align:center;font-family:'Space Grotesk',sans-serif;font-size:9px;
+            font-weight:600;color:#1e3a5f;letter-spacing:2px;text-transform:uppercase;
+            padding:6px 0 2px;">
+  CIC Decimation Filter Simulator · Team Mavericks · 5G/6G RF Front-End
+  <span style="color:#132038;"> · </span>
+  Shashank · Pasyanth · Abin · Yagnesh
 </div>
 """, unsafe_allow_html=True)
