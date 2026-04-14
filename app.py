@@ -767,14 +767,14 @@ st.markdown(f"""
     <div class="author-card">
       <div class="author-avatar" style="background:linear-gradient(135deg,#7c3aed,#c084fc);">A</div>
       <div>
-        <div class="author-name">Abin Mohammad</div>
+        <div class="author-name">Abin Mohammed</div>
         <div class="author-reg">23BVD1047</div>
       </div>
     </div>
     <div class="author-card">
       <div class="author-avatar" style="background:linear-gradient(135deg,#166534,#4ade80);">Y</div>
       <div>
-        <div class="author-name">Yagnesh</div>
+        <div class="author-name">Yagnesh M</div>
         <div class="author-reg">23BVD1046</div>
       </div>
     </div>
