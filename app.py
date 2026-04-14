@@ -22,16 +22,17 @@ st.set_page_config(
 
 # ──────────────────────────────────────────────────────────────
 # GLOBAL STYLES — Cyber/RF Dark Theme
+# FONTS CHANGED: Rajdhani → Inter  |  JetBrains Mono → Fira Code
 # ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;600&family=Rajdhani:wght@300;400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Fira+Code:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap');
 
   /* ── Root & Body ── */
   html, body, [data-testid="stApp"] {
     background: #020817;
     color: #c9d8f0;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
   .block-container { padding-top: 0.5rem; padding-bottom: 1rem; }
 
@@ -89,7 +90,7 @@ st.markdown("""
     border-radius: 8px;
     padding: 10px 14px;
     box-shadow: 0 0 15px rgba(0,80,180,0.1), inset 0 0 20px rgba(0,0,0,0.3);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Fira Code', monospace;
   }
   div[data-testid="metric-container"] label {
     color: #3b9eff !important;
@@ -98,7 +99,7 @@ st.markdown("""
     letter-spacing: 2px !important;
   }
   div[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    font-family: 'JetBrains Mono', monospace !important;
+    font-family: 'Fira Code', monospace !important;
     color: #a8d4ff !important;
     font-size: 1.2rem !important;
   }
@@ -133,7 +134,7 @@ st.markdown("""
     background: linear-gradient(135deg, #050e1f, #0a1628);
     border-left: 3px solid #3b9eff;
     border-radius: 0 8px 8px 0;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   /* ── Expander ── */
@@ -198,7 +199,7 @@ st.markdown("""
     line-height: 1.3;
   }
   .hero-sub {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Fira Code', monospace;
     font-size: 11px;
     color: #4a7aaa;
     letter-spacing: 2px;
@@ -230,7 +231,7 @@ st.markdown("""
     border: 1px solid #0d3060;
     border-radius: 8px;
     padding: 8px 14px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Fira Code', monospace;
     font-size: 11px;
     color: #7ab8ff;
     display: flex;
@@ -274,7 +275,7 @@ st.markdown("""
     border-radius: 0 8px 8px 0;
     padding: 14px 18px;
     margin-bottom: 10px;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
   .workflow-card-title {
     font-family: 'Orbitron', monospace;
@@ -318,7 +319,7 @@ st.markdown("""
 
   /* ── Code blocks ── */
   .stCode {
-    font-family: 'JetBrains Mono', monospace !important;
+    font-family: 'Fira Code', monospace !important;
     background: #050e1f !important;
     border: 1px solid #0d3060 !important;
   }
@@ -327,7 +328,7 @@ st.markdown("""
   table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Fira Code', monospace;
     font-size: 12px;
   }
   th {
@@ -356,7 +357,7 @@ st.markdown("""
 
   /* ── Radio / Checkboxes ── */
   .stRadio label, .stCheckbox label {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #8ab4d8;
   }
 </style>
@@ -589,21 +590,62 @@ def find_verilog():
             return f, t
     return None, None
 
-def run_iverilog(r_val=4, n_val=2):
-    fpath, tpath = find_verilog()
+def run_iverilog(r_val=4, n_val=2, arch="Pipelined"):
+    """
+    arch: "Pipelined" → cic_filter_pipelined.v
+          "Folded"    → cic_filter_folded.v
+          "Basic"     → cic_filter.v
+    """
+    arch_file_map = {
+        "Pipelined": "cic_filter_pipelined.v",
+        "Folded":    "cic_filter_folded.v",
+        "Basic":     "cic_filter.v",
+    }
+    tb_file_map = {
+        "Pipelined": "cic_tb_pipelined.v",
+        "Folded":    "cic_tb_folded.v",
+        "Basic":     "cic_testbench.v",
+    }
+
+    candidates = [
+        VLOG_DIR,
+        os.path.dirname(os.path.abspath(__file__)),
+        "/mount/src/cic_decimation_filter/verilog",
+        "/mount/src/cic_decimation_filter",
+    ]
+
+    fpath, tpath = None, None
+    for d in candidates:
+        fp = os.path.join(d, arch_file_map.get(arch, "cic_filter.v"))
+        tp = os.path.join(d, tb_file_map.get(arch, "cic_testbench.v"))
+        if os.path.exists(fp) and os.path.exists(tp):
+            fpath, tpath = fp, tp
+            break
+        # fallback: try generic names
+        fp2 = os.path.join(d, "cic_filter.v")
+        tp2 = os.path.join(d, "cic_testbench.v")
+        if os.path.exists(fp2) and os.path.exists(tp2):
+            fpath, tpath = fp2, tp2
+            break
+
     if fpath is None:
-        return None, "Verilog files not found. Place cic_filter.v and cic_testbench.v in the `verilog/` folder."
+        return None, (
+            f"Verilog files not found for arch='{arch}'.\n"
+            f"Expected: `verilog/{arch_file_map[arch]}` + `verilog/{tb_file_map[arch]}`\n"
+            "See the RTL SIMULATION tab for required file names."
+        )
+
     with tempfile.TemporaryDirectory() as tmp:
         out_bin = os.path.join(tmp, "cic_sim")
         with open(tpath) as f:
             tb = f.read()
         tb = re.sub(r"\.R\(\d+\)", f".R({r_val})", tb)
         tb = re.sub(r"\.N\(\d+\)", f".N({n_val})", tb)
-        tb_file = os.path.join(tmp, "tb.v")
-        with open(tb_file, "w") as f:
+        tb_mod = os.path.join(tmp, "tb.v")
+        with open(tb_mod, "w") as f:
             f.write(tb)
         try:
-            cp = subprocess.run(["iverilog", "-o", out_bin, fpath, tb_file],
+            cp = subprocess.run(["iverilog", "-o", out_bin, fpath, tb_mod],
                                 capture_output=True, text=True, timeout=15)
         except FileNotFoundError:
             return None, "iverilog not installed. Add `iverilog` to packages.txt."
@@ -623,7 +665,7 @@ def run_iverilog(r_val=4, n_val=2):
 DARK = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="#020c1b",
-    font=dict(color="#8ab4d8", family="JetBrains Mono"),
+    font=dict(color="#8ab4d8", family="Fira Code"),
     margin=dict(t=50, b=30, l=55, r=20),
 )
 GRID = dict(gridcolor="#0d2040", zerolinecolor="#1a3060", gridwidth=1)
@@ -779,7 +821,6 @@ with tab_sim:
     fig.update_yaxes(title_text="dBFS", title_font=dict(size=10),
                      range=[-100, 5], row=2, col=2)
 
-    # title font for subplot titles
     for ann in fig.layout.annotations:
         ann.font = dict(family="Orbitron", size=10, color="#3b9eff")
 
@@ -787,7 +828,6 @@ with tab_sim:
     fig.update_layout(showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # SNR row
     sfdr_out = sfdr_calc(y_norm, fs_out)
     thd_out  = thd_calc(y_norm, f_sig, fs_out) if sig_type in ["Sine","Square","Multi-tone"] else float('nan')
     s1, s2, s3, s4, s5 = st.columns(5)
@@ -827,10 +867,9 @@ with tab_freq:
         ))
 
         if show_comp:
-            # Simple sinc compensation: 1/H^0.5 approximation
             f_comp = f_ax[mask]
             with np.errstate(divide="ignore", invalid="ignore"):
-                h_comp_inv = -H_db[mask] * 0.5  # add back half the droop
+                h_comp_inv = -H_db[mask] * 0.5
             fig_fr.add_trace(go.Scatter(
                 x=f_comp/1e6, y=h_comp_inv,
                 mode="lines", line=dict(color=C_GREEN, width=1.5, dash="dot"),
@@ -867,7 +906,7 @@ with tab_freq:
             xaxis_title="Frequency (MHz)", yaxis_title="Magnitude (dB)",
             xaxis_range=[0, f_lim], yaxis_range=[y_min_db, 5],
             legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="JetBrains Mono", size=10)),
+                        font=dict(family="Fira Code", size=10)),
         )
         apply_dark(fig_fr)
         st.plotly_chart(fig_fr, use_container_width=True)
@@ -925,7 +964,7 @@ with tab_arch:
             line=dict(color=ec, width=2),
             fillcolor=f"rgba({r2},{g2},{b2},{fc_a})")
         fig.add_annotation(x=cx, y=cy, text=label, showarrow=False,
-            font=dict(size=10, color="#ffffff", family="JetBrains Mono"), align="center")
+            font=dict(size=10, color="#ffffff", family="Fira Code"), align="center")
 
     def arr(fig, x0, x1, y=1.0):
         fig.add_annotation(x=x1, y=y, ax=x0, ay=y,
@@ -989,13 +1028,14 @@ with tab_arch:
             "No pipeline registers — minimal hardware, but critical path spans all N adders."
         ),
         "Pipelined": (
-            f"**Pipelined CIC (matches RTL `cic_filter.v`):** "
+            f"**Pipelined CIC (matches RTL `cic_filter_pipelined.v`):** "
             f"A D flip-flop (FF) after every integrator and every comb stage creates a "
             f"**{2*N}-stage deep pipeline**. Critical path = 1 adder → maximum clock speed. "
             f"Latency = {2*N} clock cycles. Throughput = 1 output per R input clocks."
         ),
         "Folded": (
-            f"**Folded CIC:** A single adder is reused {N}× per input sample via time-multiplexing. "
+            f"**Folded CIC (matches RTL `cic_filter_folded.v`):** "
+            f"A single adder is reused {N}× per input sample via time-multiplexing. "
             f"Internal clock runs at {N}× Fs_in. Area reduced by ~{2*N-1} adders vs Basic. "
             "Throughput same as Basic."
         ),
@@ -1074,7 +1114,7 @@ with tab_stages:
                     height=190,
                     margin=dict(l=10,r=10,t=35,b=10),
                     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#020c1b",
-                    font=dict(color="#8ab4d8", size=9, family="JetBrains Mono"),
+                    font=dict(color="#8ab4d8", size=9, family="Fira Code"),
                     xaxis=dict(gridcolor="#0d2040", showticklabels=False),
                     yaxis=dict(gridcolor="#0d2040", range=[-1.1, 1.1]),
                     showlegend=False,
@@ -1089,7 +1129,6 @@ with tab_metrics:
     st.markdown('<div class="section-header">PERFORMANCE METRICS & ARCHITECTURE COMPARISON</div>',
                 unsafe_allow_html=True)
 
-    # Architecture Comparison Table
     bg = bit_growth(R, N, M)
     col_t, col_b = st.columns([3, 2])
 
@@ -1110,7 +1149,6 @@ with tab_metrics:
 """)
 
     with col_b:
-        # Spider / radar chart comparing architectures
         categories = ['Throughput','Speed','Area Eff.','Power Eff.','Scalability']
         basic_scores   = [3, 2, 3, 4, 3]
         pipeline_scores= [5, 5, 2, 2, 4]
@@ -1142,13 +1180,12 @@ with tab_metrics:
             ),
             title="Architecture Trade-offs",
             legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="JetBrains Mono", size=10)),
+                        font=dict(family="Fira Code", size=10)),
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
     st.markdown("---")
 
-    # Bit Growth vs R chart
     col_bg, col_noise = st.columns(2)
     with col_bg:
         R_vals = [2, 4, 8, 16, 32, 64, 128, 256]
@@ -1165,14 +1202,13 @@ with tab_metrics:
             xaxis_title="R", yaxis_title="Bit Growth",
             xaxis_type="log", title=f"Bit Growth = N·⌈log₂(R·M)⌉  [M={M}]",
             legend=dict(bgcolor="rgba(2,8,23,0.8)", bordercolor="#0d3060",
-                        font=dict(family="JetBrains Mono", size=10)),
+                        font=dict(family="Fira Code", size=10)),
             xaxis=dict(tickvals=R_vals, ticktext=[str(r) for r in R_vals]),
         )
         apply_dark(fig_bg, height=320)
         st.plotly_chart(fig_bg, use_container_width=True)
 
     with col_noise:
-        # SNR improvement vs R
         R_test = [2,4,8,16,32,64]
         snr_gains = [10*np.log10(r) for r in R_test]
         fig_snr = go.Figure(go.Bar(
@@ -1185,7 +1221,7 @@ with tab_metrics:
             ),
             text=[f"{g:.1f} dB" for g in snr_gains],
             textposition="outside",
-            textfont=dict(family="JetBrains Mono", size=10, color="#3b9eff"),
+            textfont=dict(family="Fira Code", size=10, color="#3b9eff"),
         ))
         fig_snr.update_layout(
             title="Theoretical SNR Gain vs R (10·log₁₀ R)",
@@ -1196,20 +1232,19 @@ with tab_metrics:
         st.plotly_chart(fig_snr, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════
-# TAB 6 — PROJECT FLOW
+# TAB 6 — PROJECT FLOW  (Task Breakdown & Team Roles removed)
 # ══════════════════════════════════════════════════════════════
 with tab_flow:
     st.markdown('<div class="section-header">PROJECT WORKFLOW — TEAM MAVERICKS</div>',
                 unsafe_allow_html=True)
 
-    # Flow diagram using plotly
     fig_flow = go.Figure()
     fig_flow.update_layout(
         xaxis=dict(range=[-0.5, 12], showgrid=False, zeroline=False, visible=False),
         yaxis=dict(range=[-0.5, 10], showgrid=False, zeroline=False, visible=False),
         height=480, margin=dict(l=10,r=10,t=40,b=10),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#e0e0e0", family="JetBrains Mono"),
+        font=dict(color="#e0e0e0", family="Fira Code"),
         title=dict(text="Summary Flow — CIC Filter Project",
                    font=dict(family="Orbitron", size=12, color="#3b9eff"))
     )
@@ -1234,48 +1269,37 @@ with tab_flow:
             axref="x", ayref="y", xref="x", yref="y",
             arrowhead=2, arrowsize=1.2, arrowwidth=2, arrowcolor="#1a5499")
 
-    # Nodes
     flow_box(fig_flow, 6, 9.0, "TOPIC", "CIC Decimation Filter for 5G/6G", "rgb(59,158,255)", w=3, h=0.8)
 
-    # Individual tasks
     flow_box(fig_flow, 2, 7.2, "INDIVIDUAL", "Pipelining Analysis", "rgb(168,85,247)", w=2.5, h=0.8)
     flow_box(fig_flow, 6, 7.2, "INDIVIDUAL", "Folding Analysis", "rgb(34,197,94)", w=2.5, h=0.8)
     flow_box(fig_flow, 10, 7.2, "INDIVIDUAL", "CIC Theory & Ref", "rgb(249,115,22)", w=2.5, h=0.8)
 
-    # Group tasks
     flow_box(fig_flow, 4, 5.2, "GROUP TASK", "Verilog RTL Design", "rgb(6,182,212)", w=3, h=0.8)
     flow_box(fig_flow, 8, 5.2, "GROUP TASK", "Testbench & Verify", "rgb(6,182,212)", w=3, h=0.8)
 
-    # Pipelining
     flow_box(fig_flow, 2, 3.2, "PIPELINING", "Paper Submission", "rgb(168,85,247)", w=2.8, h=0.8)
     flow_box(fig_flow, 5, 3.2, "PIPELINING", "Code → Sim Output", "rgb(168,85,247)", w=2.8, h=0.8)
 
-    # Folding
     flow_box(fig_flow, 7.5, 3.2, "FOLDING", "Work on Paper", "rgb(34,197,94)", w=2.4, h=0.8)
     flow_box(fig_flow, 10.5, 3.2, "FOLDING", "Code → Sim Output", "rgb(34,197,94)", w=2.4, h=0.8)
 
-    # Final
     flow_box(fig_flow, 6, 1.2, "FINAL OUTPUT", "RTL + Simulator + Paper", "rgb(234,179,8)", w=4, h=0.8)
 
-    # Arrows — Topic → Individuals
     flow_arrow(fig_flow, 6, 8.6, 2, 7.6)
     flow_arrow(fig_flow, 6, 8.6, 6, 7.6)
     flow_arrow(fig_flow, 6, 8.6, 10, 7.6)
 
-    # Individuals → Group Tasks
     flow_arrow(fig_flow, 2, 6.8, 4, 5.6)
     flow_arrow(fig_flow, 6, 6.8, 4, 5.6)
     flow_arrow(fig_flow, 6, 6.8, 8, 5.6)
     flow_arrow(fig_flow, 10, 6.8, 8, 5.6)
 
-    # Group → Pipelining
     flow_arrow(fig_flow, 4, 4.8, 2, 3.6)
     flow_arrow(fig_flow, 4, 4.8, 5, 3.6)
-    # Group → Folding
     flow_arrow(fig_flow, 8, 4.8, 7.5, 3.6)
     flow_arrow(fig_flow, 8, 4.8, 10.5, 3.6)
 
-    # Pipelining/Folding → Final
     flow_arrow(fig_flow, 2, 2.8, 6, 1.6)
     flow_arrow(fig_flow, 5, 2.8, 6, 1.6)
     flow_arrow(fig_flow, 7.5, 2.8, 6, 1.6)
@@ -1284,107 +1308,6 @@ with tab_flow:
     apply_dark(fig_flow, height=480)
     st.plotly_chart(fig_flow, use_container_width=True)
 
-    st.markdown("---")
-
-    # Detailed breakdown cards
-    st.markdown('<div class="section-header">TASK BREAKDOWN</div>', unsafe_allow_html=True)
-    col_a, col_b_col = st.columns(2)
-
-    with col_a:
-        st.markdown("""
-<div class="workflow-card wc-blue">
-  <div class="workflow-card-title">📌 TOPIC</div>
-  <div class="workflow-card-body">
-    Verilog HDL Design of a High-Speed Decimation Filter for 5G/6G RF Front-End Systems
-    using a Cascaded Integrator-Comb (CIC) architecture.
-  </div>
-</div>
-
-<div class="workflow-card wc-purple">
-  <div class="workflow-card-title">👤 INDIVIDUAL TASK — PIPELINING</div>
-  <div class="workflow-card-body">
-    <b>Assigned to: Shashank T & Pasyanth P</b><br>
-    • Study and derive pipelined CIC architecture on paper<br>
-    • Write RTL Verilog code for pipelined design<br>
-    • Run simulation and capture output waveforms<br>
-    • Submit paper analysis with equations and diagrams
-  </div>
-</div>
-
-<div class="workflow-card wc-green">
-  <div class="workflow-card-title">👤 INDIVIDUAL TASK — FOLDING</div>
-  <div class="workflow-card-body">
-    <b>Assigned to: Abin Mohammad & Yagnesh</b><br>
-    • Work out the folded CIC architecture by hand<br>
-    • Implement Verilog code for time-multiplexed folded design<br>
-    • Run simulation and capture output<br>
-    • Document area vs speed trade-offs
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    with col_b_col:
-        st.markdown("""
-<div class="workflow-card wc-cyan">
-  <div class="workflow-card-title">🤝 GROUP TASK</div>
-  <div class="workflow-card-body">
-    • Integrate pipelined + folded modules into one RTL project<br>
-    • Develop shared testbench (cic_testbench.v)<br>
-    • Cross-verify simulation outputs between architectures<br>
-    • Prepare frequency response and attenuation plots<br>
-    • Write joint project report (VDSP_Project.pdf)
-  </div>
-</div>
-
-<div class="workflow-card wc-yellow">
-  <div class="workflow-card-title">📄 PAPER SUBMISSION</div>
-  <div class="workflow-card-body">
-    • Reference: Hogenauer, E.B. (1981) — IEEE Trans. ASSP, vol.29, no.2<br>
-    • Work out CIC decimation & interpolation theory on paper<br>
-    • Derive H(z) transfer function and passband droop equations<br>
-    • Compare Basic / Pipelined / Folded architectures analytically<br>
-    • Submit paper + simulation output screenshots
-  </div>
-</div>
-
-<div class="workflow-card wc-orange">
-  <div class="workflow-card-title">✅ DELIVERABLES</div>
-  <div class="workflow-card-body">
-    • cic_filter.v — RTL source<br>
-    • cic_testbench.v — Functional testbench<br>
-    • Streamlit interactive simulator (this app)<br>
-    • VDSP_Project.pdf — Full report<br>
-    • GitHub: shashankchowdary-921/cic_decimation_filter
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # Team member roles
-    st.markdown("---")
-    st.markdown('<div class="section-header">TEAM ROLES</div>', unsafe_allow_html=True)
-    r1, r2, r3, r4 = st.columns(4)
-    for col_r, name, reg, role, color in [
-        (r1, "Shashank T",    "23BVD1031", "Pipelining RTL\n& Simulation",  "#3b9eff"),
-        (r2, "Pasyanth P",    "23BVD1004", "CIC Theory &\nPaper Analysis",   "#06b6d4"),
-        (r3, "Abin Mohammad", "23BVD1047", "Folding RTL\n& Testbench",       "#a855f7"),
-        (r4, "Yagnesh",       "–",         "Folding Theory\n& Verification",  "#22c55e"),
-    ]:
-        col_r.markdown(f"""
-<div style="background:linear-gradient(135deg,#0a1628,#050e1f);border:1px solid {color};
-            border-radius:10px;padding:16px;text-align:center;
-            box-shadow:0 0 15px {color}33;">
-  <div style="font-family:'Orbitron',monospace;font-size:18px;color:{color};margin-bottom:4px;">
-    ◈
-  </div>
-  <div style="font-family:'Orbitron',monospace;font-size:11px;color:{color};
-              letter-spacing:1px;margin-bottom:4px;">{name}</div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4a7aaa;
-              margin-bottom:8px;">{reg}</div>
-  <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#8ab4d8;
-              white-space:pre-line;">{role}</div>
-</div>
-""", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════════
 # TAB 7 — VERILOG SIMULATION
 # ══════════════════════════════════════════════════════════════
@@ -1392,19 +1315,30 @@ with tab_vlog:
     st.markdown('<div class="section-header">RTL SIMULATION VIA IVERILOG</div>',
                 unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
+    st.info(
+        "**Required Verilog files in `verilog/` folder:**\n\n"
+        "| Architecture | RTL file | Testbench |\n"
+        "|---|---|---|\n"
+        "| Basic | `cic_filter.v` | `cic_testbench.v` |\n"
+        "| Pipelined | `cic_filter_pipelined.v` | `cic_tb_pipelined.v` |\n"
+        "| Folded | `cic_filter_folded.v` | `cic_tb_folded.v` |"
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
     with c1:
-        sim_r = st.selectbox("R for simulation", [2, 4, 8, 16], index=1)
+        sim_arch = st.selectbox("Architecture", ["Pipelined", "Basic", "Folded"], index=0)
     with c2:
-        sim_n = st.selectbox("N for simulation", [1, 2, 3, 4], index=1)
+        sim_r = st.selectbox("R for simulation", [2, 4, 8, 16], index=1)
     with c3:
+        sim_n = st.selectbox("N for simulation", [1, 2, 3, 4], index=1)
+    with c4:
         st.write("")
         st.write("")
         run_btn = st.button("▶ RUN SIMULATION", type="primary")
 
     if run_btn:
         with st.spinner("Compiling & simulating Verilog..."):
-            output, err = run_iverilog(sim_r, sim_n)
+            output, err = run_iverilog(sim_r, sim_n, sim_arch)
         if err:
             st.error(err)
         else:
@@ -1423,7 +1357,7 @@ with tab_vlog:
                     fill='tozeroy', fillcolor="rgba(34,197,94,0.05)"
                 ))
                 fig_v.update_layout(
-                    title=f"RTL Output — valid_out samples  [R={sim_r}, N={sim_n}]",
+                    title=f"RTL Output — valid_out samples  [{sim_arch}, R={sim_r}, N={sim_n}]",
                     xaxis_title="Valid Sample #", yaxis_title="y_out",
                 )
                 apply_dark(fig_v, height=340)
@@ -1453,30 +1387,64 @@ with tab_vlog:
 with tab_vcode:
     fpath, tpath = find_verilog()
 
-    st.markdown('<div class="section-header">cic_filter.v — RTL SOURCE</div>',
+    st.markdown('<div class="section-header">cic_filter_pipelined.v — PIPELINED RTL</div>',
+                unsafe_allow_html=True)
+
+    # Try pipelined first, fall back to generic
+    pip_path = None
+    for d in [VLOG_DIR,
+              os.path.dirname(os.path.abspath(__file__)),
+              "/mount/src/cic_decimation_filter/verilog",
+              "/mount/src/cic_decimation_filter"]:
+        p = os.path.join(d, "cic_filter_pipelined.v")
+        if os.path.exists(p):
+            pip_path = p
+            break
+    if pip_path is None and fpath:
+        pip_path = fpath   # fallback to whatever was found
+
+    if pip_path:
+        with open(pip_path) as f:
+            st.code(f.read(), language="verilog")
+    else:
+        st.warning("cic_filter_pipelined.v not found. Expected: `./verilog/cic_filter_pipelined.v`")
+
+    st.markdown('<div class="section-header">cic_filter_folded.v — FOLDED RTL</div>',
+                unsafe_allow_html=True)
+    fold_path = None
+    for d in [VLOG_DIR,
+              os.path.dirname(os.path.abspath(__file__)),
+              "/mount/src/cic_decimation_filter/verilog",
+              "/mount/src/cic_decimation_filter"]:
+        p = os.path.join(d, "cic_filter_folded.v")
+        if os.path.exists(p):
+            fold_path = p
+            break
+    if fold_path:
+        with open(fold_path) as f:
+            st.code(f.read(), language="verilog")
+    else:
+        st.warning("cic_filter_folded.v not found. Expected: `./verilog/cic_filter_folded.v`")
+
+    st.markdown('<div class="section-header">cic_filter.v — BASIC RTL</div>',
                 unsafe_allow_html=True)
     if fpath:
         with open(fpath) as f:
             st.code(f.read(), language="verilog")
     else:
-        st.warning("cic_filter.v not found. Expected location: `./verilog/cic_filter.v`")
-        st.markdown("""
-> **To display RTL code here:** Place your `cic_filter.v` and `cic_testbench.v`
-> in a `verilog/` subfolder alongside this app.
-> They will be auto-detected and displayed.
-""")
+        st.warning("cic_filter.v not found. Expected: `./verilog/cic_filter.v`")
 
-    st.markdown('<div class="section-header">cic_testbench.v — TESTBENCH</div>',
+    st.markdown('<div class="section-header">TESTBENCHES</div>',
                 unsafe_allow_html=True)
     if tpath:
         with open(tpath) as f:
             st.code(f.read(), language="verilog")
     else:
-        st.warning("cic_testbench.v not found. Expected location: `./verilog/cic_testbench.v`")
+        st.warning("Testbench not found. Expected: `./verilog/cic_testbench.v`")
 
     st.markdown("---")
     st.markdown("""
-<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a7aaa;
+<div style="font-family:'Fira Code',monospace;font-size:11px;color:#4a7aaa;
             background:#050e1f;border:1px solid #0d3060;border-radius:6px;padding:14px;">
   📎 GitHub: <a href="https://github.com/shashankchowdary-921/cic_decimation_filter"
                style="color:#3b9eff;">github.com/shashankchowdary-921/cic_decimation_filter</a><br>
