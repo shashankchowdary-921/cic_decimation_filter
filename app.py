@@ -1,8 +1,3 @@
-# ============================================================
-# CIC DECIMATION FILTER — Interactive Simulator v4.0
-# Team Mavericks | DSP Project
-# Dependencies: streamlit, numpy, plotly
-# ============================================================
 
 import streamlit as st
 import numpy as np
