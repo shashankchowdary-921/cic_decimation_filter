@@ -1,21 +1,5 @@
 `timescale 1ns / 1ps
-// =============================================================================
-//  cic_tb_folded.v  —  Testbench for cic_filter_folded
-//  Team Mavericks | 5G/6G RF Front-End
-//
-//  IMPORTANT — input timing for folded DUT:
-//    The folded CIC state machine takes N clock cycles for INTEG and
-//    N cycles for COMB before returning to ST_IDLE.
-//    → valid_in must only be asserted when the DUT is in ST_IDLE.
-//
-//    This testbench waits for the `ready` window (N+2 idle clocks) between
-//    each input sample.  For tighter stimulus, add a `ready` output to the DUT.
-//
-//  Stimulus  : ramp  x_in = 0, 1, 2, … 127
-//  Expected  : displays every valid output:
-//              VALID #N  x_in=V  y_out=W  valid_out=1
-//  Python app parses: VALID #(\d+).*?y_out=(-?\d+)
-// =============================================================================
+
 module cic_tb_folded;
 
     // ── DUT parameters ────────────────────────────────────────────────────
