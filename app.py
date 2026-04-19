@@ -1,4 +1,3 @@
-
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
@@ -530,12 +529,6 @@ with st.sidebar:
                 unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style="font-family:'Outfit',sans-serif;font-size:10px;color:#252d3d;
-                letter-spacing:1px;text-align:center;padding-top:4px;text-transform:uppercase;">
-      Team Mavericks · DSP Project · 2024
-    </div>
-    """, unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────
 # SIGNAL GENERATOR
@@ -741,7 +734,7 @@ snr_out = snr_calc(y_norm, f_sig, fs_out)
 
 st.markdown(f"""
 <div class="hero-banner">
-  <div class="hero-badge">DSP Project · Team Mavericks</div>
+  <div class="hero-badge">VDSP Project · Team Mavericks</div>
   <div class="hero-title">CIC <span>Decimation</span> Filter Simulator</div>
   <div class="hero-sub">Cascaded Integrator-Comb · Interactive RTL Simulator</div>
   <div class="author-grid">
@@ -1639,6 +1632,7 @@ st.markdown("""
 <div style="text-align:center;font-family:'Outfit',sans-serif;font-size:11px;
             font-weight:500;color:#252d3d;letter-spacing:1px;padding:4px 0 2px;">
   CIC Decimation Filter Simulator · Team Mavericks
+  &nbsp;·&nbsp; VDSP Project
   &nbsp;·&nbsp; Shashank (23BVD1031) · Pasyanth (23BVD1004) · Abin (23BVD1047) · Yagnesh (23BVD1046)
 </div>
 """, unsafe_allow_html=True)
